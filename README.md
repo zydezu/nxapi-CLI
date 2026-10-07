@@ -99,17 +99,13 @@ saved to that folder instead of the OS config directory - useful for running off
 </details>
 
 > [!NOTE]
-> **`profile_url` needs the `/profile/<token>` address** from nxapi-auth's **Settings > Public
+> `profile_url` needs the `/profile/<token>` address from nxapi-auth's **Settings > Public
 > profile**. The `@username` page looks similar but has no JSON API, so the lounge link can't
-> be resolved from it. Neither form matters for a single button, since that never looks
-> anything up - the button only breaks once `one_button` is off.
+> be resolved from it. This only matters if `one_button` is off.
 
-Two smaller notes:
-
-* The lounge link carries a token only nxapi-auth can supply, and a wrong one 404s.
-  `friend_url` overrides the lookup.
-* It resolves only while your public profile is enabled - switch that off and **Add friend**
-  disappears, while **View profile** keeps working.
+> [!WARNING]
+> The "add friend" button is only shown while public profile is enabled, if it's off the "Add friend"
+and "View profile" button wont show.
 
 > [!IMPORTANT]
 > Discord doesn't show buttons on your own account showing the presence, only other users
