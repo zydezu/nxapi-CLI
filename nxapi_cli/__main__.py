@@ -163,7 +163,7 @@ def run_loop(prepWork, client):
             if game != prev_game:
                 timer = int(time())
                 if accurate_timer and snapshot.is_in_game and snapshot.since:
-                    timer = snapshot.since_epoch
+                    timer = snapshot.since_epoch or timer
                 prev_game = game
 
         # show_inactive_presence wins over show_only_in_game.

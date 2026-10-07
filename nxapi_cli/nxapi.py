@@ -269,10 +269,12 @@ class PresenceSnapshot:
 
     @property
     def console_name(self) -> str:
-        return PLATFORM_NAMES.get(self.platform, PLATFORM_NAMES[DEFAULT_PLATFORM])
+        # An absent or unrecognised platform is treated as the default console.
+        platform = self.platform if self.platform is not None else DEFAULT_PLATFORM
+        return PLATFORM_NAMES.get(platform, PLATFORM_NAMES[DEFAULT_PLATFORM])
 
     @property
-    def age_seconds(self):
+    def age_seconds(self) -> float | None:
         """Seconds since the console last reported presence, if it ever has."""
         if not self.updated_at:
             return None
@@ -288,7 +290,7 @@ class PresenceSnapshot:
         return age is not None and age > limit
 
     @property
-    def since_epoch(self):
+    def since_epoch(self) -> int | None:
         """`since` as epoch seconds, for Discord's `start` field."""
         return int(self.since.timestamp()) if self.since else None
 
@@ -415,11 +417,13 @@ class NxapiClient:
                     f"{C.GRAY}{snapshot.title_id}{C.RESET} {C.GRAY}|{C.RESET} " + title
                 )
             _log("Title:", title)
-        if snapshot.since:
-            since = snapshot.since.astimezone().strftime("%H:%M")
+        since = snapshot.since
+        since_epoch = snapshot.since_epoch
+        if since and since_epoch:
+            started = since.astimezone().strftime("%H:%M")
             _log(
                 "Session:",
-                f"started {since} {C.GRAY}({format_ago(time() - snapshot.since_epoch)}){C.RESET}",
+                f"started {started} {C.GRAY}({format_ago(time() - since_epoch)}){C.RESET}",
             )
         play_time = self.play_time(snapshot)
         if play_time:
