@@ -27,9 +27,7 @@ Button:     Add friend    https://nxapi-auth.fancy.org.uk/profile/BaN1q_1M9eHy0p
 * Discord installed and running on the PC
 * Python 3.13+, unless you're using a build
 
-## Install
-
-### Download
+## Usage
 
 Download the relevant package for your system from [releases](https://github.com/zydezu/PS3-RPC/releases).
 
@@ -100,7 +98,7 @@ Drop an empty file named `portable.txt` next to the script and the config is rea
 saved to that folder instead of the OS config directory - useful for running off a USB drive.
 </details>
 
-> [!INFO]
+> [!NOTE]
 > **`profile_url` needs the `/profile/<token>` address** from nxapi-auth's **Settings > Public
 > profile**. The `@username` page looks similar but has no JSON API, so the lounge link can't
 > be resolved from it. Neither form matters for a single button, since that never looks
@@ -113,7 +111,7 @@ Two smaller notes:
 * It resolves only while your public profile is enabled - switch that off and **Add friend**
   disappears, while **View profile** keeps working.
 
-> [!INFO]
+> [!IMPORTANT]
 > **Discord never shows buttons to the account that owns the presence.**, only other users
 can see the buttons.
 
