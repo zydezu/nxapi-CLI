@@ -7,19 +7,10 @@ Show what you're playing on your Nintendo Switch system as Discord Rich Presence
 It polls an [nxapi](https://gitlab.fancy.org.uk/samuel/nxapi-znca-api) presence server for
 your Switch's status and shows it to Discord.
 
-```
-Source:     https://nxapi-presence.fancy.org.uk/api/presence/27c5fb26d15599a6
-State:      ONLINE
-Console:    Nintendo Switch 2
-Account:    boysaremoe
-Title:      0400c3f00006e000 | Mario Kart World
-Session:    started 17:14 (56m ago)
-Play time:  Played for 285 hours
-Friend code: SW-6646-7630-9893
-Profile:    https://nxapi-auth.fancy.org.uk/profile/BaN1q_1M9eHy0plW6T8T2g
-Cover:      https://nxapi-presence.fancy.org.uk/api/presence/resources/atum/i/c/....jpeg
-Button:     Add friend    https://nxapi-auth.fancy.org.uk/profile/BaN1q_1M9eHy0plW6T8T2g
-```
+<img width="415" height="132" alt="2026-10-07_17-21-48_discord_enzeta_-_discord" src="https://github.com/user-attachments/assets/16e6aeba-8c72-4977-b24e-9bbbbb78c445" />
+
+<img width="715" height="234" alt="2026-10-07_18-13-30_nxapi-app_nxapi_-_zy_reply_2_me" src="https://github.com/user-attachments/assets/db6f82a8-b576-4f11-a693-8b19defdc94e" />
+
 
 ## Requirements
 
