@@ -23,7 +23,7 @@ Button:     Add friend    https://nxapi-auth.fancy.org.uk/profile/BaN1q_1M9eHy0p
 
 ## Requirements
 
-* A Nintendo account linked to a presence server - see **[SETUP.md](SETUP.md)**, which shows you how to set this up
+* A Nintendo account linked to a presence server - see [SETUP.md](SETUP.md), which shows you how to set this up
 * Discord installed and running on the PC
 * Python 3.13+, unless you're using a build
 
@@ -83,6 +83,9 @@ Check on it with `systemctl --user status nxapi-cli`, or follow the log with
 You'll be guided through a setup, where you're asked for your presence URL and are then able
 to configure all the options. 
 
+> [!TIP]
+> Read [SETUP.md](SETUP.md) to link your Nintendo Switch user to the presence server, do this before running this script!
+
 Settings are saved to `~/.config/nxapi-cli/nxapicliconfig.json` (`%APPDATA%\nxapi-cli\` on Windows).
 
 The prompt takes either a bare NSA ID, or the whole
@@ -104,7 +107,7 @@ saved to that folder instead of the OS config directory - useful for running off
 > be resolved from it. This only matters if `one_button` is off.
 
 > [!WARNING]
-> The "add friend" button is only shown while public profile is enabled, if it's off the "Add friend"
+> The "Add Friend" button is only shown while public profile is enabled, if it's off the "Add friend"
 and "View profile" button wont show.
 
 > [!IMPORTANT]
