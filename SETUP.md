@@ -10,8 +10,7 @@ are optional extras.
 
 1. Go to **<https://nxapi-auth.fancy.org.uk/>**, sign in, and add a Nintendo Switch user.
 
-2. Enter your **friend code** (`SW-XXXX-XXXX-XXXX`) and confirm on the actual console - that
-   part can't be done from the browser.
+2. Enter your **friend code** (`SW-XXXX-XXXX-XXXX`) and confirm on the actual console, you'll need to add the 'Shinnosuke' user.
 
 3. **Presence: Completed** under **Linked Nintendo Switch users** means it worked:
 
