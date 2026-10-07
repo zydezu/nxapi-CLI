@@ -112,7 +112,7 @@ Two smaller notes:
   disappears, while **View profile** keeps working.
 
 > [!IMPORTANT]
-> **Discord never shows buttons to the account that owns the presence.**, only other users
+> Discord doesn't show buttons on your own account showing the presence, only other users
 can see the buttons.
 
 <details>
