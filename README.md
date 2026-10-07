@@ -81,7 +81,8 @@ Check on it with `systemctl --user status nxapi-cli`, or follow the log with
 ## First run
 
 > [!TIP]
-> Read [SETUP.md](SETUP.md) to link your Nintendo Switch user to the presence server, do this before running this script!
+> Read [SETUP.md](SETUP.md), on how to link your Nintendo Switch user to the presence server. 
+> Do this before running this script!
 
 You'll be guided through a setup, where you're asked for your presence URL and are then able
 to configure all the options. 
