@@ -80,11 +80,11 @@ Check on it with `systemctl --user status nxapi-cli`, or follow the log with
 
 ## First run
 
-You'll be guided through a setup, where you're asked for your presence URL and are then able
-to configure all the options. 
-
 > [!TIP]
 > Read [SETUP.md](SETUP.md) to link your Nintendo Switch user to the presence server, do this before running this script!
+
+You'll be guided through a setup, where you're asked for your presence URL and are then able
+to configure all the options. 
 
 Settings are saved to `~/.config/nxapi-cli/nxapicliconfig.json` (`%APPDATA%\nxapi-cli\` on Windows).
 
@@ -102,7 +102,7 @@ saved to that folder instead of the OS config directory - useful for running off
 </details>
 
 > [!NOTE]
-> `profile_url` needs the `/profile/<token>` address from nxapi-auth's **Settings > Public
+> `profile_url` needs the `/profile/<token>` address from nxapi-auth's **Your User > Settings > Public
 > profile**. The `@username` page looks similar but has no JSON API, so the lounge link can't
 > be resolved from it. This only matters if `one_button` is off.
 
