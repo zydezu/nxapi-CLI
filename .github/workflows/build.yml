@@ -1,0 +1,181 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  windows_x64:
+    name: Build Windows x64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Setup venv
+        run: python -m venv .venv
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\activate.ps1
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+      - name: Install PyInstaller
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\activate.ps1
+          pip install pyinstaller
+      - name: Build Windows executable
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\activate.ps1
+          pyinstaller --onefile --name "nxapi-cli_Windows_x64" start.py
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: nxapi-cli_Windows_x64
+          path: dist/nxapi-cli_Windows_x64.exe
+
+  windows_arm64:
+    name: Build Windows ARM64
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Setup venv
+        run: python -m venv .venv
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\activate.ps1
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+      - name: Install PyInstaller
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\activate.ps1
+          pip install pyinstaller
+      - name: Build Windows ARM64 executable
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\activate.ps1
+          pyinstaller --onefile --name "nxapi-cli_Windows_ARM64" start.py
+      - name: Upload Windows ARM64 artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: nxapi-cli_Windows_ARM64
+          path: dist/nxapi-cli_Windows_ARM64.exe
+
+  linux_x64:
+    name: Build Linux x64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Cache Python dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+      - name: Install PyInstaller
+        run: |
+          source .venv/bin/activate
+          pip install pyinstaller
+      - name: Build Linux executable
+        run: |
+          source .venv/bin/activate
+          pyinstaller --onefile --name "nxapi-cli_Linux_x64" start.py
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: nxapi-cli_Linux_x64
+          path: dist/nxapi-cli_Linux_x64
+
+  linux_arm64:
+    name: Build Linux ARM64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build on ARM64 using arm-runner
+        uses: pguyot/arm-runner-action@v2
+        with:
+          base_image: raspios_lite_arm64:latest
+          cpu: cortex-a53
+          cpu_info: cpuinfo/raspberrypi_4b
+          bind_mount_repository: true
+          commands: |
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends python3 python3-venv python3-full
+            python3 -m venv .venv
+            . .venv/bin/activate
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+            pip install pyinstaller
+            pyinstaller --onefile --name "nxapi-cli_Linux_ARM64" start.py
+      - name: Upload Linux ARM64 artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: nxapi-cli_Linux_ARM64
+          path: dist/nxapi-cli_Linux_ARM64
+
+  macos_universal:
+    name: Build macOS Universal
+    runs-on: macos-latest
+    env:
+      PYTHON_VERSION: "3.13.7"
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install universal2 Python
+        run: |
+          curl -fsSLo python.pkg "https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-macos11.pkg"
+          sudo installer -pkg python.pkg -target /
+      - name: Cache Python dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: macos-universal-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            macos-universal-pip-
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3" -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip setuptools wheel
+
+          # Every dependency is pure Python, so there's no wheel to fuse per-arch.
+          # Force charset-normalizer's pure build to keep it universal2.
+          pip install --no-binary charset-normalizer -r requirements.txt
+      - name: Install PyInstaller
+        run: |
+          source .venv/bin/activate
+          pip install pyinstaller
+      - name: Build macOS universal executable
+        run: |
+          source .venv/bin/activate
+          pyinstaller --onefile --target-arch universal2 --name "nxapi-cli_MacOS_Universal" start.py
+      - name: Verify universal binary
+        run: |
+          lipo -archs dist/nxapi-cli_MacOS_Universal
+          file dist/nxapi-cli_MacOS_Universal
+      - name: Upload macOS universal artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: nxapi-cli_MacOS_Universal
+          path: dist/nxapi-cli_MacOS_Universal

@@ -1,0 +1,13 @@
+config.json
+nxapicliconfig.json
+config.txt
+nxapicliconfig.txt
+build/
+.idea
+nxapi-cli.spec
+icon.ico
+logo.png
+__pycache__
+uv.lock
+portable.txt
+.venv
