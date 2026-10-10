@@ -127,7 +127,7 @@ def run_loop(prepWork, client):
                 f"{prepWork.config['hibernate_seconds']} seconds."
             )
             # A bridge that never answers clear() would otherwise crash-loop us.
-            with contextlib.suppress(PyPresenceException):
+            with contextlib.suppress(PyPresenceException, RuntimeError):
                 if presence_active:
                     prepWork.RPC.clear()
                 prepWork.RPC.close()
