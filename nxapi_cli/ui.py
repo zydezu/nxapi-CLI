@@ -4,6 +4,8 @@ Ported from the `core/ui.py` colour/keyhint helpers in
 https://github.com/zydezu/steamplaydataeditor.
 """
 
+import sys
+
 
 class C:
     RESET = "\033[0m"
@@ -21,6 +23,25 @@ class C:
 
 def clear() -> None:
     print("\033[H\033[J", end="", flush=True)
+
+
+def stdin_is_interactive() -> bool:
+    """True when we can actually prompt the terminal"""
+    try:
+        return sys.stdin is not None and sys.stdin.isatty()
+    except (AttributeError, ValueError):
+        # ValueError: stdin detached/closed underneath us.
+        return False
+
+
+def require_interactive(what: str) -> None:
+    """Abort with an actionable message if we can't prompt."""
+    err(f"Cannot prompt for {what}: no interactive terminal (stdin is not a TTY).")
+    print(
+        f"{C.GRAY}This usually means running under a service manager. Edit the "
+        f"config file directly, or run the setup wizard from a terminal.{C.RESET}"
+    )
+    raise SystemExit(1)
 
 
 def key_opt(key: str, label: str, note: str = "") -> str:

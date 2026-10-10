@@ -24,7 +24,7 @@ from nxapi_cli.nxapi import (
     is_nsaid,
     normalise_nsaid,
 )
-from nxapi_cli.ui import C, clear, err, ok, warn
+from nxapi_cli.ui import C, clear, err, ok, require_interactive, warn
 
 default_config = {
     # Where to read presence from.
@@ -339,6 +339,7 @@ class PrepWork:
             self.configure_options()
 
     def prompt_user(self):
+        require_interactive("your Nintendo account")
         clear()
         print(f"\n{C.BOLD}{C.CYAN}===== {APP_NAME} Setup ====={C.RESET}\n")
         print(
@@ -513,6 +514,7 @@ class PrepWork:
 
     def configure_options(self):
         """Let the user pick the play time string."""
+        require_interactive("setup options")
         clear()
         print(f"\n{C.BOLD}{C.CYAN}===== First-time Setup: Options ====={C.RESET}\n")
         values = {

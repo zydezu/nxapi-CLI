@@ -7,7 +7,7 @@ from pypresence import PyPresenceException, ServerError
 
 from nxapi_cli.config import APP_NAME, PrepWork
 from nxapi_cli.nxapi import NxapiClient, NxapiError, NxapiNotFound, normalise_nsaid
-from nxapi_cli.ui import C, clear, err, warn
+from nxapi_cli.ui import C, clear, err, stdin_is_interactive, warn
 
 
 def _print_header(config_path):
@@ -105,7 +105,7 @@ def run_loop(prepWork, client):
             snapshot = client.fetch()
         except NxapiNotFound as e:
             err(str(e))
-            if not prepWork.config["nsaid_prompt"]:
+            if not prepWork.config["nsaid_prompt"] or not stdin_is_interactive():
                 err("Set the correct NSA ID in the config file and restart.")
                 with contextlib.suppress(PyPresenceException):
                     prepWork.RPC.clear()
