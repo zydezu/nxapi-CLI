@@ -24,6 +24,15 @@ Download the relevant package for your system from [releases](https://github.com
 
 ### Cloning
 
+Unix systems:
+```bash
+git clone https://github.com/zydezu/nxapi-CLI
+cd nxapi-cli
+uv pip install -r requirements.txt # use a venv of your choice
+uv run start.py
+```
+
+Windows systems:
 ```bash
 git clone https://github.com/zydezu/nxapi-CLI
 cd nxapi-cli
