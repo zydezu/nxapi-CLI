@@ -36,6 +36,8 @@ def stdin_is_interactive() -> bool:
 
 def require_interactive(what: str) -> None:
     """Abort with an actionable message if we can't prompt."""
+    if stdin_is_interactive():
+        return
     err(f"Cannot prompt for {what}: no interactive terminal (stdin is not a TTY).")
     print(
         f"{C.GRAY}This usually means running under a service manager. Edit the "
