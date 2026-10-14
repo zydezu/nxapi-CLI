@@ -127,6 +127,10 @@ def _plural(count, word) -> str:
     return f"{count} {word}" + ("" if count == 1 else "s")
 
 
+def _format_date(when) -> str:
+    return f"{when.day} {when.strftime('%b %Y')}"
+
+
 def _first_played_text(first_played_at):
     """'First played 3 hours ago' - used by the 'as on a console' mode."""
     now = time()
@@ -182,7 +186,7 @@ def play_time_text(mode, total_minutes, first_played_at):
         if not first_played_at:
             return f"{text} since now"
         played = datetime.fromtimestamp(first_played_at, tz=timezone.utc)
-        return f"{text} since {played.strftime('%-d %b %Y')}"
+        return f"{text} since {_format_date(played)}"
     return text
 
 
