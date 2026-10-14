@@ -109,25 +109,33 @@ jobs:
 
   linux_arm64:
     name: Build Linux ARM64
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v6
-      - name: Build on ARM64 using arm-runner
-        uses: pguyot/arm-runner-action@v2
+      - uses: actions/setup-python@v6
         with:
-          base_image: raspios_lite_arm64:latest
-          cpu: cortex-a53
-          cpu_info: cpuinfo/raspberrypi_4b
-          bind_mount_repository: true
-          commands: |
-            sudo apt-get update
-            sudo apt-get install -y --no-install-recommends python3 python3-venv python3-full
-            python3 -m venv .venv
-            . .venv/bin/activate
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
-            pip install pyinstaller
-            pyinstaller --onefile --name "nxapi-cli_Linux_ARM64" start.py
+          python-version: "3.13"
+      - name: Cache Python dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+      - name: Install PyInstaller
+        run: |
+          source .venv/bin/activate
+          pip install pyinstaller
+      - name: Build Linux ARM64 executable
+        run: |
+          source .venv/bin/activate
+          pyinstaller --onefile --name "nxapi-cli_Linux_ARM64" start.py
       - name: Upload Linux ARM64 artifact
         uses: actions/upload-artifact@v7
         with:
