@@ -68,7 +68,11 @@ Source:    https://nxapi-presence.fancy.org.uk/api/presence/<your-nsaid>
 State:     ONLINE
 Console:   Nintendo Switch 2
 Title:     0400c3f00006e000 | Mario Kart World
+Activity:  Playing Global Race
 Cover:     https://.../atum/i/c/....jpeg
 ```
+
+The `Activity` line only appears for games that report what you're doing, and is what gets
+shown on Discord's status line.
 
 Settings are saved to `~/.config/nxapi-cli/nxapicliconfig.json` (`%APPDATA%\nxapi-cli\` on Windows).

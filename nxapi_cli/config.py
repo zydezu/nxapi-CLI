@@ -44,6 +44,7 @@ default_config = {
     "show_only_in_game": True,
     "show_inactive_presence": False,
     "show_console": True,
+    "show_sys_description": True,
     # Tooltip.
     "show_tooltip": True,
     "tooltip_as_status_line": True,
@@ -427,6 +428,11 @@ class PrepWork:
                 (
                     "show_console",
                     "Show the console name below the game name",
+                ),
+                (
+                    "show_sys_description",
+                    "Show what you're doing in-game (e.g. 'Playing Global Race') "
+                    "when the game reports it",
                 ),
             ],
         ),

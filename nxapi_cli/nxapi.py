@@ -53,6 +53,9 @@ PLAY_TIME_LABELS = dict(PLAY_TIME_MODES)
 # Discord renders at most two buttons on an activity.
 MAX_BUTTONS = 2
 
+# Discord rejects a whole activity whose text fields exceed this many bytes.
+DISCORD_TEXT_LIMIT = 128
+
 
 class NxapiError(Exception):
     """Base class for anything that stops us reading a presence."""
@@ -241,6 +244,14 @@ def _title_id_from_shop_url(shop_uri):
     return match.group(1).lower() if match else None
 
 
+def clean_sys_description(value) -> str:
+    """sysDescription"""
+    text = " ".join(str(value or "").split())
+    if len(text.encode()) <= DISCORD_TEXT_LIMIT:
+        return text
+    return text.encode()[:DISCORD_TEXT_LIMIT].decode(errors="ignore").strip()
+
+
 @dataclass
 class PresenceSnapshot:
     """Parse the presence server."""
@@ -255,6 +266,7 @@ class PresenceSnapshot:
     logout_at: int | None = None
     title_id: str | None = None
     title_name: str | None = None
+    sys_description: str = ""
     image_url: str | None = None
     since: datetime | None = None
     total_play_time: int | None = None
@@ -390,6 +402,7 @@ class NxapiClient:
             logout_at=presence.get("logoutAt"),
             title_id=title_id.lower() if title_id else None,
             title_name=title.get("name") or game.get("name") or None,
+            sys_description=clean_sys_description(game.get("sysDescription")),
             image_url=game.get("imageUri") or title.get("image_url") or None,
             since=_parse_timestamp(title.get("since")),
             total_play_time=game.get("totalPlayTime"),
@@ -419,6 +432,8 @@ class NxapiClient:
                     f"{C.GRAY}{snapshot.title_id}{C.RESET} {C.GRAY}|{C.RESET} " + title
                 )
             _log("Title:", title)
+        if snapshot.sys_description:
+            _log("Activity:", f"{C.GRAY}{snapshot.sys_description}{C.RESET}")
         since = snapshot.since
         since_epoch = snapshot.since_epoch
         if since and since_epoch:
@@ -489,10 +504,14 @@ class NxapiClient:
         return snapshot.console_name
 
     def activity_state(self, snapshot: PresenceSnapshot):
-        """The status line under the title, e.g. 'Playing on Nintendo Switch 2'."""
+        """The status line under the title, e.g. 'Playing Global Race'."""
         console = snapshot.console_name
         show_console = self.config.get("show_console")
         if snapshot.is_in_game:
+            # Most games report what the player is doing ('Playing Global
+            # Race'), which says more than the console, so it wins.
+            if self.config.get("show_sys_description") and snapshot.sys_description:
+                return snapshot.sys_description
             return f"Playing on {console}" if show_console else None
         if self.config.get("show_inactive_presence"):
             # nxapi's inactive presence is a flat "Not playing", console or not.
