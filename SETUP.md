@@ -73,6 +73,6 @@ Cover:     https://.../atum/i/c/....jpeg
 ```
 
 The `Activity` line only appears for games that report what you're doing, and is what gets
-shown on Discord's status line.
+shown on the Discord line directly under the game name.
 
 Settings are saved to `~/.config/nxapi-cli/nxapicliconfig.json` (`%APPDATA%\nxapi-cli\` on Windows).

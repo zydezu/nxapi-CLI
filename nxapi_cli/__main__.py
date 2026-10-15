@@ -32,10 +32,17 @@ def _presence_kwargs(prepWork, client, snapshot, timer):
     # Small image sits bottom-right; a shared friend code wins over the Mii.
     small_image, small_text = client.small_image(snapshot)
 
+    activity = client.status_line(snapshot)
+    if activity:
+        details = activity
+        state = tooltip_text if as_status_line else client.activity_state(snapshot)
+    else:
+        state = client.activity_state(snapshot)
+
     kwargs = {
         "name": snapshot.title_name or snapshot.account_name,
         "details": details,
-        "state": client.activity_state(snapshot),
+        "state": state,
         "large_image": client.cover_image(snapshot),
         "large_text": large_text,
         "small_image": small_image,

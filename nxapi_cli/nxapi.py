@@ -503,15 +503,17 @@ class NxapiClient:
         """The console's full name, e.g. 'Nintendo Switch 2'."""
         return snapshot.console_name
 
+    def status_line(self, snapshot: PresenceSnapshot) -> str:
+        """What the game says you're doing, e.g. 'Playing Global Race', else ''"""
+        if not self.config.get("show_sys_description"):
+            return ""
+        return snapshot.sys_description if snapshot.is_in_game else ""
+
     def activity_state(self, snapshot: PresenceSnapshot):
-        """The status line under the title, e.g. 'Playing Global Race'."""
+        """The bottom line, e.g. 'Played for 984 hours' or 'Playing on Nintendo Switch 2'."""
         console = snapshot.console_name
         show_console = self.config.get("show_console")
         if snapshot.is_in_game:
-            # Most games report what the player is doing ('Playing Global
-            # Race'), which says more than the console, so it wins.
-            if self.config.get("show_sys_description") and snapshot.sys_description:
-                return snapshot.sys_description
             return f"Playing on {console}" if show_console else None
         if self.config.get("show_inactive_presence"):
             # nxapi's inactive presence is a flat "Not playing", console or not.
