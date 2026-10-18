@@ -180,6 +180,11 @@ def run_loop(prepWork, client):
             and not snapshot.is_in_game
             and not show_inactive
         ):
+            # Clear any stale activity Discord is still showing
+            with contextlib.suppress(PyPresenceException):
+                if presence_active:
+                    prepWork.RPC.clear()
+            presence_active = False
             print(
                 f"{C.GRAY}Not in a game, skipping RPC update "
                 f"(show_only_in_game){C.RESET}"
