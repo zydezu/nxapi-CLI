@@ -126,6 +126,41 @@ the lowercase title ID (e.g. `0400c3f00006e000`). The Home Menu falls back to `h
 To test the Discord side without a console awake: `python tests/test_presence.py --simulate`
 </details>
 
+## Publishing to chat.boysare.moe
+
+Instead of Discord's local IPC socket, nxapi-cli can publish straight to the
+[chat.boysare.moe](https://chat.boysare.moe) rich presence API. This works on a
+headless server, where no Discord client is running.
+
+Create an API token in chat.boysare.moe under **Settings → API**, then set:
+
+```json
+{
+    "publisher": "chat",
+    "rpc_token": "rpc_...",
+    "rpc_url": "https://chat.boysare.moe/api/rpc",
+    "rpc_ttl": 0
+}
+```
+
+`rpc_ttl` is the heartbeat lifetime in seconds; `0` picks three times
+`wait_seconds`, so a stopped service clears its own status after a few missed
+polls. `rpc_url` is optional and defaults to the public endpoint.
+
+The same values can come from the environment, which keeps tokens out of the
+config file:
+
+```bash
+NXAPI_PUBLISHER=chat RPC_TOKEN=rpc_... python3 start.py
+```
+
+For a headless service, `requests` is the only requirement (pypresence is only
+imported for the Discord publisher):
+
+```bash
+pip install requests
+```
+
 ## Credits
 
 * [nxapi](https://gitlab.fancy.org.uk/samuel/nxapi-znca-api) by samuelthomas2774 - the

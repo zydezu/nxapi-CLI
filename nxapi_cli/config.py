@@ -11,8 +11,6 @@ from time import sleep
 from typing import ClassVar
 
 import requests
-from pypresence import DiscordNotFound, PyPresenceException
-from pypresence.presence import Presence
 
 from nxapi_cli.nxapi import (
     DEFAULT_PLAY_TIME,
@@ -31,8 +29,13 @@ default_config = {
     "nsaid": "",
     "base_url": PUBLIC_BASE_URL,
     "url": "",  # optional full-URL override, wins over base_url + nsaid
-    # Discord.
+    # Where to publish the presence. "discord" uses the local Discord client;
+    # "chat" posts to the chat.boysare.moe rich presence API (headless-friendly).
+    "publisher": "discord",
     "client_id": 1558968286715183196,
+    "rpc_url": "https://chat.boysare.moe/api/rpc",
+    "rpc_token": "",
+    "rpc_ttl": 0,  # heartbeat seconds for the chat publisher; 0 = auto
     "wait_seconds": 30,
     "hibernate_seconds": 600,  # clear presence after this long without a report
     "stale_seconds": 7200,
@@ -600,7 +603,61 @@ class PrepWork:
         with self.config_path.open(mode="w+") as f:
             json.dump(self.config, f, indent=4)
 
+    def publisher(self):
+        """Which RPC backend to use: 'discord' or 'chat'."""
+        return (
+            str(
+                os.environ.get("NXAPI_PUBLISHER")
+                or self.config.get("publisher")
+                or "discord"
+            )
+            .strip()
+            .lower()
+        )
+
+    def rpc_url(self):
+        return str(
+            os.environ.get("RPC_URL")
+            or self.config.get("rpc_url")
+            or "https://chat.boysare.moe/api/rpc"
+        ).strip()
+
+    def rpc_token(self):
+        return str(
+            os.environ.get("RPC_TOKEN") or self.config.get("rpc_token") or ""
+        ).strip()
+
+    def chat_ttl(self):
+        """Heartbeat lifetime, long enough to survive a couple of failed polls."""
+        configured = int(self.config.get("rpc_ttl") or 0)
+        if configured >= 5:
+            return configured
+        return max(15, int(float(self.config["wait_seconds"]) * 3))
+
+    def connect_rpc(self):
+        if self.publisher() == "chat":
+            from nxapi_cli.chat_rpc import ChatPresence, ChatRPCError
+
+            try:
+                self.RPC = ChatPresence(
+                    self.rpc_url(),
+                    self.rpc_token(),
+                    self.chat_ttl(),
+                    session=self.session,
+                )
+                self.RPC.connect()
+            except ChatRPCError as e:
+                self.RPC = None
+                err(f"Could not use the chat.boysare.moe RPC API: {e}")
+                raise SystemExit(1) from e
+            ok(f"Publishing rich presence to {self.rpc_url()}")
+            return
+        self.connect_to_discord()
+
     def connect_to_discord(self):
+        from pypresence import DiscordNotFound, PyPresenceException
+        from pypresence.presence import Presence
+
         while True:
             try:
                 self.RPC = Presence(self.config["client_id"])

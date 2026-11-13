@@ -1,10 +1,19 @@
-"""Poll loop: read presence, push it to Discord."""
+"""Poll loop: read presence, push it to Discord or chat.boysare.moe."""
 
 import contextlib
+import signal
 from time import sleep, time
 
-from pypresence import PyPresenceException, ServerError
+try:
+    from pypresence import PyPresenceException, ServerError
+except ImportError:  # chat-only installs don't need the Discord library
+    class PyPresenceException(Exception):
+        pass
 
+    class ServerError(PyPresenceException):
+        pass
+
+from nxapi_cli.chat_rpc import ChatRPCError
 from nxapi_cli.config import APP_NAME, PrepWork
 from nxapi_cli.nxapi import NxapiClient, NxapiError, NxapiNotFound, normalise_nsaid
 from nxapi_cli.ui import C, clear, err, stdin_is_interactive, warn
@@ -79,8 +88,17 @@ def main():
         )
         return
 
+    # A service manager stop (SIGTERM) should clear the status too.
+    def stop(signum, frame):
+        raise KeyboardInterrupt
+
+    for name in ("SIGTERM", "SIGHUP"):
+        sig = getattr(signal, name, None)
+        if sig is not None:
+            signal.signal(sig, stop)
+
     try:
-        prepWork.connect_to_discord()
+        prepWork.connect_rpc()
         client = NxapiClient(prepWork.config, session=prepWork.session)
         run_loop(prepWork, client)
     except KeyboardInterrupt:
@@ -114,7 +132,7 @@ def run_loop(prepWork, client):
             err(str(e))
             if not prepWork.config["nsaid_prompt"] or not stdin_is_interactive():
                 err("Set the correct NSA ID in the config file and restart.")
-                with contextlib.suppress(PyPresenceException):
+                with contextlib.suppress(PyPresenceException, ChatRPCError):
                     prepWork.RPC.clear()
                     prepWork.RPC.close()
                 return
@@ -134,7 +152,7 @@ def run_loop(prepWork, client):
                 f"{prepWork.config['hibernate_seconds']} seconds."
             )
             # A bridge that never answers clear() would otherwise crash-loop us.
-            with contextlib.suppress(PyPresenceException, RuntimeError):
+            with contextlib.suppress(PyPresenceException, ChatRPCError, RuntimeError):
                 if presence_active:
                     prepWork.RPC.clear()
                 prepWork.RPC.close()
@@ -144,7 +162,7 @@ def run_loop(prepWork, client):
             continue
 
         if closed:
-            prepWork.connect_to_discord()
+            prepWork.connect_rpc()
             timer = int(time()) if show_timer else None
             prev_game = None
             closed = False
@@ -158,7 +176,7 @@ def run_loop(prepWork, client):
         if snapshot.state == "OFFLINE" or (
             stale_limit > 0 and snapshot.is_stale(stale_limit)
         ):
-            with contextlib.suppress(PyPresenceException):
+            with contextlib.suppress(PyPresenceException, ChatRPCError):
                 if presence_active:
                     prepWork.RPC.clear()
             presence_active = False
@@ -180,8 +198,8 @@ def run_loop(prepWork, client):
             and not snapshot.is_in_game
             and not show_inactive
         ):
-            # Clear any stale activity Discord is still showing
-            with contextlib.suppress(PyPresenceException):
+            # Clear any stale activity the backend is still showing
+            with contextlib.suppress(PyPresenceException, ChatRPCError):
                 if presence_active:
                     prepWork.RPC.clear()
             presence_active = False
@@ -195,12 +213,13 @@ def run_loop(prepWork, client):
         try:
             prepWork.RPC.update(**_presence_kwargs(prepWork, client, snapshot, timer))
             presence_active = True
-        except ServerError as e:
-            err(f"Discord rejected the RPC update: {e}")
-            print(
-                f"{C.GRAY}Usually another instance of {APP_NAME} is running, or "
-                f"the payload had something Discord wouldn't accept.{C.RESET}"
-            )
+        except (ServerError, ChatRPCError) as e:
+            err(f"Could not publish the RPC update: {e}")
+            if prepWork.publisher() == "discord":
+                print(
+                    f"{C.GRAY}Usually another instance of {APP_NAME} is running, or "
+                    f"the payload had something Discord wouldn't accept.{C.RESET}"
+                )
         except PyPresenceException:
             # Discord closed the pipe or went away. PipeClosed, InvalidPipe and
             # the rest are all PyPresenceException subclasses, so catching the
